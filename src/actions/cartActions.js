@@ -71,4 +71,35 @@ export const getItemsCart = (cartId) => async (dispatch) => {
     })
 }
 
-export const addItemToCart = (cartId, itemId, quantity) => async (dispatch) => {}
+export const addItemToCart = (cartId, itemId, quantity) => async (dispatch) => {
+    const config = {
+        Headers: {
+            'Content-type': 'application/json',
+        }
+    }
+    await axios.get(`${process.env.SERVER_URL}api/cartItemDetectSameItem/${cartId}/${productId}/`, config).then((res) => {
+        if (res.data.length === 0){
+            await axios.post(`${process.env.SERVER_URL}api/cartItem/`, {'cartId': cartId, 'productId': productId, 'quanity': 1}, config).then((res2) => {
+                dispatch({
+                    type: ADD_ITEM_TO_CART,
+                    payload: res2.data
+                });
+            })
+        }else{
+            await axios.put(`${process.env.SERVER_URL}api/cartItem/id/${res.data[0]?.id}`, {'cartId': cartId, 'productId': productId, 'quanity': res.data[0]?.quantity+1}, config)
+        }
+    })
+}
+
+export const deleteItemFromCart = (id) => async (dispatch) => {
+    const config = {
+        Headers: {
+            'Content-type': 'application/json',
+        }
+    }
+    await axios.delete(`${process.env.SERVER_URL}api/cartItem/${id}/${id}/`,{'userId': id, 'quantity': quantity - 1 },config).then((res) => {
+        dispatch({
+            type: DELETE_ITEM_FROM_CART,
+        });
+    })
+}
